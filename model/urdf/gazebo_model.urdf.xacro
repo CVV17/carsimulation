@@ -1,0 +1,12 @@
+<!-- 组合小车底盘与摄像头 -->
+<robot name="$(arg robot_name)" xmlns:xacro="http://wiki.ros.org/xacro">
+    <xacro:include filename="inertial_param.urdf.xacro" />
+    <!-- <xacro:include filename="gazebo_base.urdf.xacro" /> -->
+    <xacro:include filename="gazebo_car.urdf.xacro" />
+    <xacro:include filename="gazebo_camera.urdf.xacro" />
+    <xacro:include filename="gazebo_imu.urdf.xacro" />
+    <xacro:include filename="gazebo_laser.urdf.xacro" />
+    <xacro:include filename="gazebo_realview.urdf.xacro" />
+    <xacro:include filename="gazebo_device.urdf.xacro" />
+    <!-- <xacro:include filename="gazebo_move.urdf.xacro" /> -->
+</robot>

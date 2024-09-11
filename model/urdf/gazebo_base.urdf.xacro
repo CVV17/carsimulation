@@ -1,0 +1,170 @@
+<!--
+    使用 xacro 优化 URDF 版的小车底盘实现：
+
+    实现思路:
+    1.将一些常量、变量封装为 xacro:property
+      比如:PI 值、小车底盘半径、离地间距、车轮半径、宽度 ....
+    2.使用 宏 封装驱动轮以及支撑轮实现，调用相关宏生成驱动轮与支撑轮
+
+-->
+<!-- 根标签，必须声明 xmlns:xacro -->
+<robot name="$(arg robot_name)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- 封装变量、常量 -->
+    <xacro:property name="PI" value="3.141"/>
+    <!-- 宏:黑色设置 -->
+    <material name="black">
+        <color rgba="0.0 0.0 0.0 1.0" />
+    </material>
+    <material name="gray">
+        <color rgba="0.0 0.0 0.0 0.5" />
+    </material>
+    <!-- 底盘属性 -->
+    <xacro:property name="base_footprint_radius" value="0.001" /> <!-- base_footprint 半径  -->
+    <xacro:property name="base_link_width" value="0.2" /> <!-- base_link 半径 -->
+    <xacro:property name="base_link_length" value="0.3" /> <!-- base_link 长 -->
+    <xacro:property name="base_link_height" value="0.1" /> <!-- base_link hight -->
+    <xacro:property name="earth_space" value="0.015" /> <!-- 离地间距 -->
+    <xacro:property name="base_link_m" value="0.5" /> <!-- 质量 -->
+
+    <!-- 底盘 -->
+    <link name="base_footprint">
+      
+    </link>
+
+
+    <link name="base_link">
+      <visual>
+        <geometry>
+          <box size=" ${base_link_length} ${base_link_width} ${base_link_height}" />
+        </geometry>
+        <origin xyz="0 0 0 }" rpy="0 0 0" />
+      </visual>
+      <collision>
+        <geometry>
+          <box size=" ${base_link_length} ${base_link_width} ${base_link_height}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+      </collision>
+      <xacro:Box_inertial_matrix m="${base_link_m}" l="${base_link_length}" w="${base_link_width}" h="${base_link_height}" />
+    </link>
+
+    <joint name="base_link2base_footprint" type="fixed">
+      <parent link="base_footprint" />
+      <child link="base_link" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+     <gazebo reference="base_link">
+        <material>Gazebo/Yellow</material>
+    </gazebo>
+
+    <!-- 转向轮 -->
+    <!-- 转向轮属性 -->
+    <xacro:property name="wheel_radius" value="0.055" /><!-- 半径 -->
+    <xacro:property name="wheel_length" value="0.015" /><!-- 宽度 -->
+    <xacro:property name="steering_wheel_radius" value="0.025" /><!-- 半径 -->
+    <xacro:property name="steering_wheel_length" value="0.005" /><!-- 宽度 -->
+    <xacro:property name="wheel_m" value="0.05" /><!-- 质量 -->
+    <!-- 转向轮宏实现 -->
+    <xacro:macro name="steering_wheels" params="name flag_rl">
+      <link name="${name}_wheel_steering">
+        <visual>
+          <geometry>
+            <cylinder radius="${steering_wheel_radius}" length="${steering_wheel_length}" />
+          </geometry>
+          <origin xyz="0.0 0.0 0.0" rpy="${PI / 2} 0.0 0.0" />
+          <material name="gray" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${steering_wheel_radius}" length="${steering_wheel_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="${PI / 2} 0.0 0.0" />
+        </collision>
+        <xacro:cylinder_inertial_matrix m="${wheel_m}" r="${steering_wheel_radius}" h="${steering_wheel_length}" />
+      </link>
+
+      <joint name="${name}_wheel_steering_joint" type="revolute">
+        <parent link="base_link" />
+        <child link="${name}_wheel_steering" />
+        <origin rpy="0 0 0" xyz="${ (base_link_length) / 2} ${flag_rl * (base_link_width )} ${-(earth_space + base_link_height / 2 - wheel_radius) }" />
+         <axis xyz="0 0 1" />
+         <limit
+          lower="-0.6"
+          upper="0.6"
+          effort="10"
+          velocity="1000" />
+      </joint>
+
+       
+        
+     <link name="${name}_wheel">
+        <visual>
+          <geometry>
+            <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+          </geometry>
+          <origin xyz="0.0 0.0 0.0" rpy="${PI / 2} 0.0 0.0" />
+          <material name="black" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="${PI / 2} 0.0 0.0" />
+        </collision>
+        <xacro:cylinder_inertial_matrix m="${wheel_m}" r="${wheel_radius}" h="${wheel_length}" />
+      </link>
+
+      <joint name="${name}_wheel_joint" type="continuous">
+        <parent link="${name}_wheel_steering" />
+        <child link="${name}_wheel" />
+        <origin xyz=" 0 0 0 " rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+         <!-- <axis xyz="0 ${0.5-0.5*flag_fb} ${0.5*flag_fb+0.5}" /> -->
+      </joint>
+
+      <gazebo reference="${name}_wheel">
+        <material>Gazebo/Black</material>
+      </gazebo>
+
+    </xacro:macro>
+
+    
+    <!-- 驱动轮 -->
+    <!-- 驱动轮属性 -->
+    <!-- <xacro:property name="wheel_radius" value="0.055" />半径 -->
+    <!-- <xacro:property name="wheel_length" value="0.015" />宽度 -->
+    <!-- <xacro:property name="wheel_m" value="0.05" />质量 -->
+    <!-- 驱动轮宏实现 -->
+    <xacro:macro name="add_wheels" params="name flag_rl">
+      <link name="${name}_wheel">
+        <visual>
+          <geometry>
+            <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+          </geometry>
+          <origin xyz="0.0 0.0 0.0" rpy="${PI / 2} 0.0 0.0" />
+          <material name="black" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="${PI / 2} 0.0 0.0" />
+        </collision>
+        <xacro:cylinder_inertial_matrix m="${wheel_m}" r="${wheel_radius}" h="${wheel_length}" />
+      </link>
+
+      <joint name="${name}_wheel_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="${name}_wheel" />
+        <origin rpy="0 0 0" xyz="${-1 * (base_link_length) / 2} ${flag_rl * (base_link_width)} ${-(earth_space + base_link_height / 2 - wheel_radius) }" />
+         <axis xyz="0 1 0" />
+      </joint>
+      <gazebo reference="${name}_wheel">
+        <material>Gazebo/Black</material>
+      </gazebo>
+    </xacro:macro>
+    <xacro:steering_wheels name="left_front" flag_rl="1" />
+    <xacro:steering_wheels name="right_front" flag_rl="-1" />
+    <xacro:add_wheels name="left_back" flag_rl="1"/>
+    <xacro:add_wheels name="right_back"  flag_rl="-1"/>
+</robot>

@@ -1,0 +1,54 @@
+<!--
+    小车底盘添加雷达
+-->
+<robot name="$(arg robot_name)" xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!-- 雷达支架 -->
+    <xacro:property name="realsence_length" value="0.15" /> <!-- 支架长度 -->
+    <xacro:property name="realsence_radius" value="0.2" /> <!-- 支架半径 -->
+    <xacro:property name="realsence_x" value="-0.5" /> <!-- 支架安装的x坐标 -->
+    <xacro:property name="realsence_y" value="0.0" /> <!-- 支架安装的y坐标 -->
+    <xacro:property name="realsence_z" value="${base_link_height / 2 + realsence_length / 2}" /> <!-- 支架安装的z坐标:底盘高度 / 2 + 支架高度 / 2  -->
+    <xacro:property name="realsence_m" value="0.02" /> <!-- 支架安装的z坐标:底盘高度 / 2 + 支架高度 / 2  -->
+
+    <link name="real_view">
+        <visual>
+            <geometry>
+                <cylinder radius="${realsence_radius}" length="${realsence_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <material name="red">
+                <color rgba="0.8 0.2 0.0 0.8" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${realsence_radius}" length="${realsence_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        </collision>
+
+        <xacro:cylinder_inertial_matrix m="${realsence_m}" r="${realsence_radius}" h="${realsence_length}" />
+
+
+    </link>
+
+    <joint name="realview_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="real_view" />
+        <origin xyz="${realsence_x} ${realsence_y} ${realsence_z}" />
+    </joint>
+    <link name="real_view_depth" />
+       
+    <joint name="real_view_depth_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+            <parent link="real_view"/>
+            <child link="real_view_depth"/>
+    </joint>
+
+
+
+    <gazebo reference="real_view">
+        <material>Gazebo/Black</material>
+    </gazebo>
+</robot>

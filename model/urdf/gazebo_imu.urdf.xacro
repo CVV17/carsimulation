@@ -1,0 +1,38 @@
+<!-- 摄像头相关的 xacro 文件 -->
+<robot name="$(arg robot_name)" xmlns:xacro="http://wiki.ros.org/xacro">
+    <!-- 摄像头属性 -->
+    <xacro:property name="imu_length" value="0.02" /> <!-- 摄像头长度(x) -->
+    <xacro:property name="imu_width" value="0.03" /> <!-- 摄像头宽度(y) -->
+    <xacro:property name="imu_height" value="0.01" /> <!-- 摄像头高度(z) -->
+    <xacro:property name="imu_x" value="0.2" /> <!-- 摄像头安装的x坐标 -->
+    <xacro:property name="imu_y" value="0.0" /> <!-- 摄像头安装的y坐标 -->
+    <xacro:property name="imu_z" value="${base_link_height / 2 + imu_height / 2}" /> <!-- 摄像头安装的z坐标:底盘高度 / 2 + 摄像头高度 / 2  -->
+    <xacro:property name="imu_m" value="0.01" /> <!-- 摄像头安装的z坐标:底盘高度 / 2 + 摄像头高度 / 2  -->
+
+    <!-- 摄像头关节以及link -->
+    <link name="imu">
+        <visual>
+            <geometry>
+                <box size="${imu_length} ${imu_width} ${imu_height}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <material name="black" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${imu_length} ${imu_width} ${imu_height}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        </collision>
+        <xacro:Box_inertial_matrix m="${imu_m}" l="${imu_length}" w="${imu_width}" h="${imu_height}" />
+    </link>
+
+    <joint name="imu2base_link" type="fixed">
+        <parent link="base_link" />
+        <child link="imu" />
+        <origin xyz="${imu_x} ${imu_y} ${imu_z}" />
+    </joint>
+    <gazebo reference="imu">
+        <material>Gazebo/Blue</material>
+      </gazebo>
+</robot>

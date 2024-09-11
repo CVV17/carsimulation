@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <arg name="robotname" />
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <!-- <rosparam file="$(find model)/config/car_joint.yaml" command="load"/> -->
+  <rosparam file="$(find model)/config/ackermanncontrol.yaml" command="load"/>
+  <!-- <rosparam file="$(find model)/config/smart_control_config.yaml" command="load"/> -->
+
+  <!-- load controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/$(arg robotname)" args="joint_state_controller rear_right_velocity_controller rear_left_velocity_controller front_right_steering_position_controller front_left_steering_position_controller"/>
+  <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/$(arg robotname)" args="joint_state_controller rear_right_velocity_controller rear_left_velocity_controller front_left_velocity_controller front_right_velocity_controller front_right_steering_position_controller front_left_steering_position_controller"/> -->
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+      respawn="true" output="screen">
+      <remap from="/joint_states" to="/$(arg robotname)/joint_states" />
+  </node>
+  <!-- car configration -->
+  <!-- <node name="cmdvel2gazebo" pkg="model" type="cmdvel2gazebo.py" respawn="true" output="screen"/> -->
+  <node name="servo_command" pkg="model" type="servo_command.py" respawn="true" output="screen"/>
+  <!-- transform-->
+  <node name="transform" pkg="model" type="transform.py" respawn="true" output="screen"/>
+  <!-- odom-->
+  <node name="gazebo_odometry" pkg="model" type="gazebo_odometry.py" respawn="true" output="screen"/>
+
+
+</launch>
+

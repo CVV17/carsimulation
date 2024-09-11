@@ -1,0 +1,38 @@
+digraph G {
+node [shape=box];
+"base_link" [label="base_link"];
+"camera" [label="camera"];
+"imu" [label="imu"];
+"main_mass" [label="main_mass"];
+"left_back_wheel_link" [label="left_back_wheel_link"];
+"left_front_steering_link" [label="left_front_steering_link"];
+"left_front_wheel_link" [label="left_front_wheel_link"];
+"right_back_wheel_link" [label="right_back_wheel_link"];
+"right_front_steering_link" [label="right_front_steering_link"];
+"right_front_wheel_link" [label="right_front_wheel_link"];
+"support" [label="support"];
+"laser" [label="laser"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"base_link" -> "camera2base_link" [label="xyz: 0.08 0 0.1625 \nrpy: 0 -0 0"]
+"camera2base_link" -> "camera"
+"base_link" -> "imu2base_link" [label="xyz: 0.2 0 0.155 \nrpy: 0 -0 0"]
+"imu2base_link" -> "imu"
+"base_link" -> "inertial_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"inertial_joint" -> "main_mass"
+"base_link" -> "left_back_wheel_joint" [label="xyz: -0.8 0.6 0 \nrpy: 0 -0 0"]
+"left_back_wheel_joint" -> "left_back_wheel_link"
+"base_link" -> "left_front_steering_joint" [label="xyz: 0.8 0.6 0 \nrpy: 0 -0 0"]
+"left_front_steering_joint" -> "left_front_steering_link"
+"left_front_steering_link" -> "left_front_wheel_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"left_front_wheel_joint" -> "left_front_wheel_link"
+"base_link" -> "right_back_wheel_joint" [label="xyz: -0.8 -0.6 0 \nrpy: 0 -0 0"]
+"right_back_wheel_joint" -> "right_back_wheel_link"
+"base_link" -> "right_front_steering_joint" [label="xyz: 0.8 -0.6 0 \nrpy: 0 -0 0"]
+"right_front_steering_joint" -> "right_front_steering_link"
+"right_front_steering_link" -> "right_front_wheel_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"right_front_wheel_joint" -> "right_front_wheel_link"
+"base_link" -> "support2base_link" [label="xyz: 0 0 0.225 \nrpy: 0 -0 0"]
+"support2base_link" -> "support"
+"support" -> "laser2support" [label="xyz: 0 0 0.1 \nrpy: 0 -0 0"]
+"laser2support" -> "laser"
+}

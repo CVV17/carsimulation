@@ -1,0 +1,9 @@
+<launch>
+    <include file="$(find model)/launch/gazebo_model.launch"/>
+    <include file="$(find model)/launch/slam_gmapping.launch"/>
+    <include file="$(find model)/launch/amcl.launch"/>
+    <include file="$(find model)/launch/teb.launch"/>
+    <arg name="map" default="carhouse.yaml"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(find model)/map/$(arg map)"/>
+    
+</launch>

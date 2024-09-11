@@ -1,0 +1,29 @@
+<launch>
+
+    <!-- 将 Urdf 文件的内容加载到参数服务器 -->
+    <!-- <param name="robot_description" textfile="$(find model)/urdf/gazebo_model.urdf.xacro" /> -->
+    <arg name="gazebo_model" value="$(find model)/urdf/gazebo_model.urdf.xacro"/>
+    <!-- <arg name="gazebo_model" value="$(find model)/urdf/mycar.xacro"/> -->
+    <arg name="robot_name" value="mycar" />
+    <param name="robot_description" command="$(find xacro)/xacro '$(arg gazebo_model)' robot_name:='mycar'" />
+    <!-- <param name="robot_description" command="$(find xacro)/xacro $(arg gazebo_model)" /> -->
+
+   
+    <!-- 启动 gazebo -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" >
+        <arg name="world_name" value="$(find model)/world/carhouse.world" />
+    </include>
+
+
+    <!-- 在 gazebo 中显示机器人模型 -->
+    <node pkg="gazebo_ros" type="spawn_model" name="model" args="-urdf -model $(arg robot_name) -param robot_description"  />
+
+
+    <arg name="rvizconfig" default="$(find model)/config/carmodel.rviz" />
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+
+    <include file="$(find model)/launch/control.launch" >
+     <arg name="robotname" value="mycar" />
+    </include>
+</launch>
